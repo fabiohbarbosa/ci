@@ -1,0 +1,11 @@
+spring:
+  application.name: CI
+
+  datasource:
+    driverClassName: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/ci
+    username: root
+    password: admin
+
+  jpa:
+     show-sql: true

@@ -1,0 +1,81 @@
+group 'br.com.devmedia'
+version '1.0-SNAPSHOT'
+
+apply plugin: "java"
+apply plugin: "war"
+apply plugin: "spring-boot"
+apply plugin: "org.liquibase.gradle"
+
+/** Compilação do Java **/
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+/** Scripts adicionados ao build **/
+buildscript {
+    repositories {
+        jcenter()
+        mavenLocal()
+        mavenCentral()
+    }
+    dependencies {
+        classpath(
+                "org.springframework.boot:spring-boot-gradle-plugin:1.2.5.RELEASE",
+                "mysql:mysql-connector-java:5.1.36",
+                "org.yaml:snakeyaml:1.15",
+                "org.liquibase:liquibase-gradle-plugin:1.1.0"
+        )
+    }
+}
+
+/** Liquibase **/
+assemble.dependsOn(update)
+liquibase {
+    activities {
+        main {
+            changeLogFile "src/main/resources/db.changelog-master.yaml"
+            url "jdbc:mysql://localhost:3306/ci"
+            username "root"
+            password "admin"
+        }
+        runList = "main"
+    }
+}
+
+/** Testes de integração **/
+test {
+    exclude "br/com/devmedia/ci/**/**IT.class"
+    exclude "br/com/devmedia/ci/**/**HTML.class"
+}
+
+task integrationTest(type: Test) {
+    include "br/com/devmedia/ci/**/**IT.class"
+    testClassesDir = sourceSets.test.output.classesDir
+    classpath = sourceSets.test.runtimeClasspath
+    reports.html.destination = file("$buildDir/reports/integration-tests")
+}
+
+task acceptanceTest(type: Test) {
+    include "br/com/devmedia/ci/**/**HTML.class"
+    testClassesDir = sourceSets.test.output.classesDir
+    classpath = sourceSets.test.runtimeClasspath
+    reports.html.destination = file("$buildDir/reports/acceptance-tests")
+}
+
+/** Dependências **/
+repositories {
+    jcenter()
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    compile(
+            "org.springframework.boot:spring-boot-starter-web:1.2.5.RELEASE",
+            "org.springframework.boot:spring-boot-starter-data-jpa:1.2.5.RELEASE",
+            "mysql:mysql-connector-java:5.1.36"
+    )
+    testCompile(
+            "org.springframework.boot:spring-boot-starter-test:1.2.5.RELEASE",
+            "junit:junit-dep:4.8.2"
+    )
+}

@@ -1,0 +1,3 @@
+databaseChangeLog:
+  - include:
+    - file: 'src/main/resources/scripts/db.changelog-01.sql'
