@@ -125,7 +125,7 @@ uploadArchives {
     }
 }
 
-/** Deploy Apache **/
+/** Apache Deploy **/
 cargo {
     containerId = project.tomcatVersion
     port = project.tomcatPort

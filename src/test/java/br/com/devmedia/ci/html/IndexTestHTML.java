@@ -16,4 +16,5 @@ public class IndexTestHTML {
         HtmlPage currentPage = webClient.getPage("http://www.google.com/");
         assertEquals("Google", currentPage.getTitleText());
     }
+
 }
