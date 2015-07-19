@@ -1,14 +1,43 @@
-group 'br.com.devmedia'
-version '1.0-SNAPSHOT'
+group '$groupId'
 
-apply plugin: "java"
-apply plugin: "war"
-apply plugin: "spring-boot"
-apply plugin: "org.liquibase.gradle"
+version '$projectVersion'
+
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'war'
+apply plugin: 'spring-boot'
+apply plugin: 'org.liquibase.gradle'
+apply plugin: 'com.bmuschko.cargo'
 
 /** Compilação do Java **/
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
+
+ext {
+    // dados do projeto
+    projectVersion = '1.0-SNAPSHOT'
+    groupId = 'br.com.devmedia'
+    artifactId = 'ci'
+    packaging = 'war'
+
+    // nexus
+    nexusSnapshotRepository = 'http://10.0.0.100:8081/nexus/content/repositories/snapshots'
+    nexusUserName = 'deployment'
+    nexusPassword = 'deployment123'
+
+    // tomcat
+    tomcatVersion = 'tomcat8x'
+    tomcatPort = 8181
+    tomcatHostname = '10.0.0.100'
+    tomcatUsername = 'deployment'
+    tomcatPassword = 'deployment123'
+
+    // liquibase
+    liquibaseChangelog = 'src/main/resources/db.changelog-master.yaml'
+    liquibaseUrl = 'jdbc:mysql://10.0.0.100:3306/ci'
+    liquibaseUsername = 'root'
+    liquibasePassword = 'admin'
+}
 
 /** Scripts adicionados ao build **/
 buildscript {
@@ -19,10 +48,11 @@ buildscript {
     }
     dependencies {
         classpath(
-                "org.springframework.boot:spring-boot-gradle-plugin:1.2.5.RELEASE",
-                "mysql:mysql-connector-java:5.1.36",
-                "org.yaml:snakeyaml:1.15",
-                "org.liquibase:liquibase-gradle-plugin:1.1.0"
+                'org.springframework.boot:spring-boot-gradle-plugin:1.2.5.RELEASE',
+                'mysql:mysql-connector-java:5.1.36',
+                'org.yaml:snakeyaml:1.15',
+                'org.liquibase:liquibase-gradle-plugin:1.1.0',
+                'com.bmuschko:gradle-cargo-plugin:2.1.1'
         )
     }
 }
@@ -32,30 +62,30 @@ assemble.dependsOn(update)
 liquibase {
     activities {
         main {
-            changeLogFile "src/main/resources/db.changelog-master.yaml"
-            url "jdbc:mysql://localhost:3306/ci"
-            username "root"
-            password "admin"
+            changeLogFile project.liquibaseChangelog
+            url project.liquibaseUrl
+            username project.liquibaseUsername
+            password project.liquibasePassword
         }
-        runList = "main"
+        runList = 'main'
     }
 }
 
 /** Testes de integração **/
 test {
-    exclude "br/com/devmedia/ci/**/**IT.class"
-    exclude "br/com/devmedia/ci/**/**HTML.class"
+    exclude 'br/com/devmedia/ci/**/**IT.class'
+    exclude 'br/com/devmedia/ci/**/**HTML.class'
 }
 
 task integrationTest(type: Test) {
-    include "br/com/devmedia/ci/**/**IT.class"
+    include 'br/com/devmedia/ci/**/**IT.class'
     testClassesDir = sourceSets.test.output.classesDir
     classpath = sourceSets.test.runtimeClasspath
     reports.html.destination = file("$buildDir/reports/integration-tests")
 }
 
 task acceptanceTest(type: Test) {
-    include "br/com/devmedia/ci/**/**HTML.class"
+    include 'br/com/devmedia/ci/**/**HTML.class'
     testClassesDir = sourceSets.test.output.classesDir
     classpath = sourceSets.test.runtimeClasspath
     reports.html.destination = file("$buildDir/reports/acceptance-tests")
@@ -70,11 +100,43 @@ repositories {
 
 dependencies {
     compile(
-            "org.springframework.boot:spring-boot-starter-web:1.2.5.RELEASE",
-            "org.springframework.boot:spring-boot-starter-data-jpa:1.2.5.RELEASE",
-            "mysql:mysql-connector-java:5.1.36"
+            'org.springframework.boot:spring-boot-starter-web:1.2.5.RELEASE',
+            'org.springframework.boot:spring-boot-starter-data-jpa:1.2.5.RELEASE',
+            'mysql:mysql-connector-java:5.1.36'
     )
     testCompile(
-            "org.springframework.boot:spring-boot-starter-test:1.2.5.RELEASE"
+            'org.springframework.boot:spring-boot-starter-test:1.2.5.RELEASE',
+            'net.sourceforge.htmlunit:htmlunit:2.17'
     )
+}
+
+/** Nexus **/
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: project.nexusSnapshotRepository) {
+                authentication(userName: project.nexusUserName, password: project.nexusPassword)
+            }
+            pom.version = project.projectVersion
+            pom.artifactId = project.artifactId
+            pom.groupId =  project.groupId
+            pom.packaging = project.packaging
+        }
+    }
+}
+
+/** Deploy Apache **/
+cargo {
+    containerId = project.tomcatVersion
+    port = project.tomcatPort
+
+    deployable {
+        context = 'ci'
+    }
+
+    remote {
+        hostname = project.tomcatHostname
+        username = project.tomcatUsername
+        password = project.tomcatPassword
+    }
 }
