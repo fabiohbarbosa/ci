@@ -75,7 +75,6 @@ dependencies {
             "mysql:mysql-connector-java:5.1.36"
     )
     testCompile(
-            "org.springframework.boot:spring-boot-starter-test:1.2.5.RELEASE",
-            "junit:junit-dep:4.8.2"
+            "org.springframework.boot:spring-boot-starter-test:1.2.5.RELEASE"
     )
 }
