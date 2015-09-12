@@ -1,22 +1,21 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Java Magazine</title>
+    <title>Integração Contínua</title>
     <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
 </head>
 <body>
 <div class="container">
-    <h1 id="titulo">Java Magazine - Integração Contínua</h1>
+    <h1 id="titulo">Integração Contínua</h1>
     <h2 id="sub-titulo">Usuários</h2>
     <hr>
 
-    <form class="form-inline">
+    <form class="form-inline" onsubmit="return false">
         <div class="form-group">
-            <label>#</label>
-            <input id="id" type="text" class="form-control" placeholder="ID">
+            <input id="id" type="text" class="form-control" placeholder="ID"/>
         </div>
         <button id="btn-buscar-id" class="btn btn-primary" type="button">ID</button>
-        <button id="btn-buscar" class="btn btn-primary" type="button">Todos</button>
+        <button id="btn-buscar-todos" class="btn btn-primary" type="button">Todos</button>
         <button id="btn-limpar" class="btn btn-danger" type="button">Limpar</button>
     </form>
 
@@ -29,56 +28,14 @@
             <th class="col-xs-11"> Nome</th>
         </tr>
         </thead>
-        <tbody id="resultado"></tbody>
+        <tbody id="tabela-resultado"></tbody>
     </table>
 
     <p id="erro" class="bg-warning">Nenhum registro encontrado!</p>
 </div>
-<script src="http://code.jquery.com/jquery-1.11.3.js"></script>
 
-<script>
-    $(document).ready(function () {
-        $('#tabela').hide();
-        $('#erro').hide();
-    });
+<script src="jquery-1.11.3.js"></script>
+<script src="index.js"></script>
 
-    $('#btn-buscar-id').click(function () {
-        var userId = $('#id').val();
-        if (!userId) {
-            return;
-        }
-        $.getJSON("user/"+userId, function (data) {
-            var items = [];
-            items.push("<tr> <th>" + data.id + "</th><td>" + data.name + "</td> </tr>");
-            $('#tabela').show();
-            $('#erro').hide();
-            $('#resultado').html(items);
-        }).fail(function() {
-            $('#tabela').hide();
-            $('#erro').show();
-        });
-    });
-
-    $('#btn-buscar').click(function () {
-        $.getJSON("user", function (data) {
-            var items = [];
-            $.each(data, function (key, val) {
-                items.push("<tr> <th>" + val.id + "</th><td>" + val.name + "</td> </tr>");
-            });
-            $('#tabela').show();
-            $('#erro').hide();
-            $('#resultado').html(items);
-        }).fail(function() {
-            $('#tabela').hide();
-            $('#erro').show();
-        });
-    });
-
-    $('#btn-limpar').click(function () {
-        $('#tabela').hide();
-        $('#erro').hide();
-    });
-
-</script>
 </body>
 </html>

@@ -16,7 +16,7 @@ targetCompatibility = 1.8
 ext {
     // dados do projeto
     projectVersion = '1.0-SNAPSHOT'
-    groupId = 'br.com.devmedia'
+    groupId = 'com.wordpress.fabiohbarbosa'
     artifactId = 'ci'
     packaging = 'war'
 
@@ -72,19 +72,19 @@ liquibase {
 
 /** Testes de integração **/
 test {
-    exclude 'br/com/devmedia/ci/**/**IT.class'
-    exclude 'br/com/devmedia/ci/**/**HTML.class'
+    exclude 'com/wordpress/fabiohbarbosa/ci/**/**IT.class'
+    exclude 'com/wordpress/fabiohbarbosa/ci/**/**HTML.class'
 }
 
 task integrationTest(type: Test) {
-    include 'br/com/devmedia/ci/**/**IT.class'
+    include 'com/wordpress/fabiohbarbosa/ci/**/**IT.class'
     testClassesDir = sourceSets.test.output.classesDir
     classpath = sourceSets.test.runtimeClasspath
     reports.html.destination = file("$buildDir/reports/integration-tests")
 }
 
 task acceptanceTest(type: Test) {
-    include 'br/com/devmedia/ci/**/**HTML.class'
+    include 'com/wordpress/fabiohbarbosa/ci/**/**HTML.class'
     testClassesDir = sourceSets.test.output.classesDir
     classpath = sourceSets.test.runtimeClasspath
     reports.html.destination = file("$buildDir/reports/acceptance-tests")
@@ -105,7 +105,8 @@ dependencies {
     )
     testCompile(
             'org.springframework.boot:spring-boot-starter-test:1.2.5.RELEASE',
-            'net.sourceforge.htmlunit:htmlunit:2.15'
+            'net.anthavio:phanbedder-1.9.7:1.0.0',
+            'com.github.detro.ghostdriver:phantomjsdriver:1.1.0'
     )
 }
 
